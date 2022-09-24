@@ -3,6 +3,10 @@
 """
 from typing import List
 import pandas as pd
+import matplotlib.pyplot as plt
+from matplotlib.figure import Figure
+from matplotlib.pyplot import Axes
+import japanize_matplotlib
 
 # 電気代/発電量
 WS_DENKI_NAME: str = '電気'
@@ -24,6 +28,7 @@ WS_DENKI_NAMES: List[str] = [
     WS_DENKI_COL_ELECGEN,
     WS_DENKI_COL_SALE
 ]
+WS_DENKI_COL_CONSUME: str = 'CONSUME'
 
 # 水道代
 WS_SUIDO_NAME: str = '水道'
@@ -62,6 +67,10 @@ class Reader:
             names=WS_DENKI_NAMES)
         df[WS_COL_YEAR] = df[WS_DENKI_COL_DATE].dt.year
         df[WS_COL_MONTH] = df[WS_DENKI_COL_DATE].dt.month
+        df[WS_DENKI_COL_CONSUME] = df[
+            [WS_DENKI_COL_DAYTIME,
+             WS_DENKI_COL_MOREVTIME,
+             WS_DENKI_COL_NIGHTTIME]].sum(axis=1)
         return df
 
     def _read_suido(self, file: str):
@@ -77,6 +86,58 @@ class Reader:
         df[WS_COL_YEAR] = df[WS_SUIDO_COL_DATE].dt.year
         df[WS_COL_MONTH] = df[WS_SUIDO_COL_DATE].dt.month
         return df
+
+    def show_sum_denki_consume(self):
+        """
+        年間消費電力の推移を表示する
+        """
+        self._show_annual_changes(
+            self._denki_data,
+            WS_DENKI_COL_CONSUME,
+            "年間消費電力の推移",
+            "消費電力"
+        )
+
+    def show_sum_denki_sale(self):
+        """
+        年間発電量の推移を表示する
+        """
+        self._show_annual_changes(
+            self._denki_data,
+            WS_DENKI_COL_ELECGEN,
+            "年間発電量の推移",
+            "発電量"
+        )
+
+    def show_sum_suido(self):
+        """
+        水道使用量の推移を表示する
+        """
+        self._show_annual_changes(
+            self._suido_data,
+            WS_SUIDO_COL_AMOUNT,
+            "水道使用量の推移",
+            "使用量"
+        )
+
+    def _show_annual_changes(self, data: pd.DataFrame, col: str, title: str, ylabel: str):
+        """
+        年間の推移を表示する
+        """
+        df: pd.DataFrame = data.groupby(
+                [WS_COL_YEAR]).agg({col: 'sum'}).reset_index()
+
+        fig, ax = plt.subplots(1, 1)
+
+        fig.set_figwidth(10)
+        ax.yaxis.set_major_formatter(plt.FuncFormatter(lambda x, loc: "{:,}".format(int(x))))
+        plt.bar(df[WS_COL_YEAR], df[col])
+        plt.title(title)
+        plt.xlabel('年')
+        plt.ylabel(ylabel)
+        plt.grid(True)
+        plt.show()
+
 
 def factory() -> Reader:
     import configparser

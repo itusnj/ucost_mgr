@@ -4,7 +4,8 @@ This is my personal project to visualize my utility cost.  Everyone can use the 
 - Python 3
 - pipenv
 
-# Settings
+# Setting up
+- `pipenv install`
 - create `config.ini`
 
 ```ini

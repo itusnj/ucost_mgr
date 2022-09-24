@@ -6,6 +6,8 @@ name = "pypi"
 [packages]
 pandas = "*"
 openpyxl = "*"
+matplotlib = "*"
+japanize-matplotlib = "*"
 
 [dev-packages]
 ipykernel = "*"
