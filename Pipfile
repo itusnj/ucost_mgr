@@ -8,6 +8,7 @@ pandas = "*"
 openpyxl = "*"
 matplotlib = "*"
 japanize-matplotlib = "*"
+ipywidgets = "*"
 
 [dev-packages]
 ipykernel = "*"
