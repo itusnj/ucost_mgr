@@ -137,7 +137,30 @@ class Reader:
         plt.ylabel(ylabel)
         plt.grid(True)
         plt.show()
+    
+    def show_timezone_denki(self):
+        """
+        時間帯毎の折れ線グラフ
+        """
+        df: pd.DataFrame = self._denki_data.groupby(
+                [WS_COL_YEAR]).agg(
+                    {WS_DENKI_COL_DAYTIME: 'sum',
+                     WS_DENKI_COL_MOREVTIME: 'sum',
+                     WS_DENKI_COL_NIGHTTIME: 'sum'
+                    }).reset_index()
+        fig, ax = plt.subplots(1, 1)
+        fig.set_figwidth(10)
+        ax.yaxis.set_major_formatter(plt.FuncFormatter(lambda x, loc: "{:,}".format(int(x))))
+        ax.plot(df[WS_COL_YEAR], df[WS_DENKI_COL_DAYTIME], label='昼間')
+        ax.plot(df[WS_COL_YEAR], df[WS_DENKI_COL_MOREVTIME], label='朝晩')
+        ax.plot(df[WS_COL_YEAR], df[WS_DENKI_COL_NIGHTTIME], label='夜間')
 
+        plt.title('時間帯毎の推移')
+        plt.xlabel('年')
+        plt.ylabel('消費電力')
+        plt.grid(True)
+        ax.legend()
+        plt.show()
 
 def factory() -> Reader:
     import configparser
